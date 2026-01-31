@@ -1,1 +1,175 @@
-
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "03951676-4fef-4d55-bffb-9aa880f08063",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nKJ5ns1oUNpPcK6z",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.snippet }}",
+        "options": {
+          "systemMessage": "You are an email classification assistant.\nClassify the email into one of the following categories:\n- Meeting Request\n- Leave Request\n- Promotion\n- Other\n\nReply with ONLY valid JSON in this format:\n{\n  \"category\": \"<category>\"\n}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        288,
+        16
+      ],
+      "id": "cdd5738f-bca2-48e7-854a-0602dc9917a0",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        160,
+        224
+      ],
+      "id": "23c93928-d0ed-489c-b24c-4a0942083b74",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CUIyE54Wdtmw1F6G",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "IMPORTANT"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        544,
+        80
+      ],
+      "id": "d599733e-643e-4866-afb2-62d71fa2eac0",
+      "name": "Add label to message",
+      "webhookId": "4511b95a-d3bb-42d3-81cd-55124476050d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nKJ5ns1oUNpPcK6z",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "madhuesimisetti@gmail.com",
+          "mode": "list",
+          "cachedResultName": "madhuesimisetti@gmail.com"
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        752,
+        80
+      ],
+      "id": "5e476a55-7dc7-4c79-a7ae-edd3275e24f0",
+      "name": "Create an event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "GtPLQLaxwQ8CMY4Q",
+          "name": "Google Calendar account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Add label to message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add label to message": {
+      "main": [
+        [
+          {
+            "node": "Create an event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "14eed086-9f46-4c95-80b2-9f10038d07c8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "61a73a772c6973dbee8e4ad025c9f0f146da27a184bab4dc7173f673e1f4ca04"
+  },
+  "id": "ZhFMMOqBMlpX8jWL9ZiyA",
+  "tags": []
+}
